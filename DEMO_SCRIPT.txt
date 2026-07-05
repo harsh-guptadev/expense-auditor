@@ -1,0 +1,74 @@
+# Expense Auditor: Demo Script
+
+Welcome to the Expense Auditor demo script! This guide walks you through verifying the secure, policy-audited, and human-in-the-loop expense claim workflow.
+
+---
+
+## Prerequisites
+1. Ensure the server is running:
+   ```bash
+   make playground
+   ```
+2. Open your browser and go to:
+   http://127.0.0.1:18081
+
+---
+
+## Case 1: Standard Claim (Dinner Expense - Auto-Approved)
+This scenario demonstrates standard claim auditing, policy lookup, and duplicate checking, resulting in automatic approval.
+
+### Steps:
+1. Under the session list (on the left panel of the playground), click **+ New Session**.
+2. Enter the following message in the chat input and hit enter:
+   ```
+   Please reimburse my dinner at the hotel. I spent $45 on food. My name is John Doe.
+   ```
+3. **What to Observe**:
+   - The security checkpoint scans the input (finds it safe).
+   - The Orchestrator delegates to the Policy Auditor.
+   - The Policy Auditor queries lodging and food caps via `query_policy_rules` and checks duplicates via `fetch_historical_expenses`.
+   - The transaction is logged using the `log_audit_entry` tool.
+   - The workflow finishes and displays:
+     - `status: "APPROVED"`
+     - A drafted approval email to John Doe confirming the $45 reimbursement.
+
+---
+
+## Case 2: High Amount (SF Lodging Expense - Pauses for Human Review)
+This scenario demonstrates how the workflow dynamically triggers a Human-in-the-Loop interrupt when thresholds are exceeded.
+
+### Steps:
+1. Click **+ New Session** at the top right of the playground to reset the state machine.
+2. Enter the following message in the chat input and hit enter:
+   ```
+   Lodging expenses for my trip to SF. It was $1200 for 3 nights. My name is John Doe.
+   ```
+3. **What to Observe**:
+   - The workflow runs through the security checks and policy lookups.
+   - Because the total exceeds the $1,000 threshold, it pauses and shows an **adk_request_input** dialog.
+4. **Action**:
+   - You can check the `Approved` box to approve, or leave it blank to reject.
+   - Enter administrator remarks (e.g. "approved per regional VP exception" or "not approved").
+   - Click **Submit**.
+5. **Observe**:
+   - The workflow resumes using your inputs.
+   - It outputs a final confirmation/rejection email matching your decision and remarks.
+
+---
+
+## Case 3: Policy Violation & PII Leak (Casino Reimbursement - Security Rejected)
+This scenario demonstrates the critical security boundary checking for prompt injections, prohibited items, and PII leakage.
+
+### Steps:
+1. Click **+ New Session** to start a clean run.
+2. Enter the following message in the chat input and hit enter:
+   ```
+   Reimburse my casino losses of $500. Credit card used: 4111-2222-3333-4444.
+   ```
+3. **What to Observe**:
+   - The security checkpoint immediately redacts the credit card number to prevent leakage.
+   - It flags the restricted expense type `casino` (Policy violation).
+   - The workflow terminates **instantly** at the security boundary.
+   - The final output states:
+     - `status: "SECURITY_REJECTED"`
+     - A drafted response detailing the specific infractions (Prohibited item and PII leakage).
