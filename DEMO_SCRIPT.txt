@@ -1,33 +1,62 @@
 [0:00 — HOOK]
-Managing employee expenses is typically a tedious, manual process prone to security leaks and policy violations. Today, I am showing you the Expense Auditor—an intelligent assistant that automates compliance, guards against PII leakage, and handles complex human-in-the-loop decisions in seconds.
+Hello everyone, and welcome to this demonstration of the Expense Auditor. In today's corporate world, manually auditing employee travel and entertainment expenses is a slow, error-prone process. It is vulnerable to non-compliant spending, duplicate submissions, and security risks like prompt injections or sensitive data leakage. The Expense Auditor solves this by automating policy checks, filtering out security threats, and providing a seamless human-in-the-loop review interface.
 
 [0:20 — WHAT IT IS]
-This agent belongs to the Agents for Business track. It is a secure multi-agent workflow built with the Google Agent Development Kit 2.0 that automates corporate travel and entertainment expense audits.
+Built for the "Agents for Business" track using the Google Agent Development Kit 2.0, this project coordinates multiple specialized AI agents, checks claims against live databases using a Model Context Protocol server, and automatically redacts PII before processing.
 
 [0:40 — SHOW THE BANNER]
-(show assets/cover_page_banner.png)
-As you can see on the banner, the Expense Auditor is designed to be automated, secure, and policy-compliant, focusing on key elements like multi-agent collaboration, structured security checkpoints, and database-driven policy checks.
+(show assets/cover_page_banner.png on screen)
+As you can see from our cover banner, the Expense Auditor focuses on three pillars: Multi-Agent coordination, Security Checkpoints, and Model Context Protocol database integrations. Let's walk through the architecture to see how these fit together.
 
 [1:00 — ARCHITECTURE]
-(show assets/architecture_diagram.png)
-Looking at our system architecture, the workflow begins at the Security Checkpoint node which filters prompt injections and redacts sensitive PII. Safe inputs proceed to the Orchestrator Coordinator Agent. The Orchestrator delegates deep checks to the Policy Auditor Agent, which accesses corporate lodging limits and logs transactions using a local Model Context Protocol server. If a claim exceeds threshold limits, the workflow suspends at the human review pause node until an admin responds, before routing to the Communication Drafter Agent to create the final email response.
+(show assets/architecture_diagram.png on screen)
+Looking at the workflow diagram, every expense submission begins at the Security Checkpoint node. This node filters out prompt injection attacks, redacts SSNs or credit card numbers, and screens for restricted expense items. Safe inputs then reach our Orchestrator Coordinator Agent. 
+(pause and point to Orchestrator)
+The Orchestrator acts as the central router and delegates tasks. It calls the Policy Auditor Agent, which queries lodging and food caps via our local Model Context Protocol server, and checks for double-submissions against historical database records. 
+(pause and point to Human node)
+If a claim is clean but exceeds $1,000, the workflow pauses at the Human Review node. Here, the system suspends execution and requests input from an administrator in the playground UI. Once a decision is made, the workflow resumes and routes to the Communication Drafter Agent to compile the final approval or rejection email.
 
 [2:00 — LIVE DEMO]
-(switch to playground at localhost:18081)
-Let's see this in action. (pause)
-For our first test, I will enter a standard claim: "Please reimburse my dinner at the hotel. I spent $45 on food. My name is John Doe." 
-As we run this, the security checkpoint passes the safe input, the Policy Auditor checks the dinner cap via our MCP server, and we see it is automatically approved, yielding a drafted approval confirmation email.
+(switch browser tab to the playground at http://localhost:18081)
+Let's start the live demonstration. 
 
 (pause)
-Now, let's create a new session and test Case 2: a high-value lodging claim: "Lodging expenses for my trip to SF. It was $1200 for 3 nights. My name is John Doe."
-Because the lodging amount exceeds the $1,000 threshold, the workflow pauses. The playground displays a review window asking me to approve or reject. I will check the rejected box, type "not approved", and submit. The workflow resumes instantly and drafts a professional rejection email citing my remarks.
+First, I will click the "+ New Session" button at the top right of the playground to start with a fresh, clean workflow state. 
+(pause, click button)
+Now, I will copy and paste our first test case: "Please reimburse my dinner at the hotel. I spent $45 on food. My name is John Doe." 
+(type the message in the input box, but do not click send yet)
+This is a standard dinner expense under $500. Let's click send and watch the node execution.
+(click send / hit enter)
+(pause and watch the nodes light up on the screen)
+The Security Checkpoint scanned the text and found it safe. The Orchestrator routed the request to the Policy Auditor, which verified the $45 claim against the hotel food allowance, checked for duplicates, and logged the transaction via MCP. The Communication Drafter then compiled the output.
+(scroll down to show the output in the playground)
+As you can see, the status is "APPROVED", and the assistant has drafted a professional confirmation email to John Doe confirming the reimbursement of $45.
 
 (pause)
-Finally, let's look at Case 3—a security rejection: "Reimburse my casino losses of $500. Credit card used: 4111-2222-3333-4444."
-When I run this, the Security Checkpoint immediately redacts the credit card number, flags the restricted casino expense type, and terminates the run on the spot, drafting an infraction warning.
+Now, let's test our second case: a lodging expense that exceeds our auto-approval limit. I will click the "+ New Session" button to clear our session.
+(pause, click + New Session)
+Now, I'll enter the lodging claim: "Lodging expenses for my trip to SF. It was $1200 for 3 nights. My name is John Doe."
+(type the message and click send)
+(pause and watch the workflow run until it stops)
+Notice that the execution has paused at the "human_review" node. An interrupt popup has appeared on the screen asking for administrative input. The form requires me to check "Approved" or leave it blank to reject, and enter remarks.
+(point cursor to the popup)
+Let's reject this claim. I will leave the "Approved" box unchecked, and type in the remarks: "Rejected because lodging limits in SF are capped at $300 per night."
+(type the remarks into the text box and click Submit)
+(pause and watch the workflow finish)
+Once I clicked submit, the workflow resumed immediately. It read our decision from the state and routed to the Communication Drafter. Under the final output, we see the status is "REJECTED", and it drafted a polite rejection email incorporating our custom remarks.
+
+(pause)
+For our final test case, let's observe the security guardrails. I will click "+ New Session" once more.
+(pause, click + New Session)
+Now, I'll submit a claim containing a prohibited expense type and sensitive credit card information: "Reimburse my casino losses of $500. Credit card used: 4111-2222-3333-4444."
+(type the message and click send)
+(pause and watch it terminate instantly)
+Look at how fast that processed. The workflow terminated immediately at the Security Checkpoint boundary. It did not query the Orchestrator or the Policy Auditor. 
+(scroll down and show the logs and output)
+If we look at the results, the credit card number was completely redacted to prevent PII leakage. It was identified as a policy infraction due to the prohibited "casino" expense type. The final status is "SECURITY_REJECTED", and a warning email was drafted highlighting the infractions.
 
 [3:00 — SECURITY & MCP]
-This highlights our robust security guardrails: we scrub PII via regex, intercept malicious injections, and log structured JSON events, while our MCP server dynamically pulls lodging caps and records audit logs to our local database.
+This live demo highlights our robust security design. By implementing PII scrubbing, injection detection, and structured JSON audit logging directly in the Security Checkpoint node, we safeguard corporate assets. Furthermore, our local Model Context Protocol server bridges the gap between LLM agents and the company's internal databases, ensuring that policy limits and historical duplicates are fetched securely and in real time.
 
 [3:30 — IMPACT / CLOSE]
-By combining multi-agent reasoning, secure input filtering, database-driven rules, and administrative oversight, the Expense Auditor ensures corporate policy is enforced instantly, protecting company data and saving hundreds of hours of manual labor. Thank you!
+In conclusion, the Expense Auditor changes how corporate expense audits are managed. It eliminates manual cross-referencing, enforces strict compliance automatically, protects against data leaks, and keeps administrators in the loop for high-value claims. Thank you for your time, and I am happy to take any questions!
