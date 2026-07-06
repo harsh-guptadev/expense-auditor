@@ -9,6 +9,8 @@ The **Expense Auditor** solves this by providing a secure, automated multi-agent
 
 ## Solution Architecture
 
+![Architecture Diagram](assets/architecture_diagram.png)
+
 ```mermaid
 graph TD
     START[__START__] --> Security[Security Checkpoint Node]
@@ -26,13 +28,29 @@ graph TD
     SecEvent --> Final
     
     subgraph Local MCP Server
-        MCP[MCP Server] --- query_policy_rules[query_policy_rules tool]
-        MCP --- fetch_historical_expenses[fetch_historical_expenses tool]
-        MCP --- log_audit_entry[log_audit_entry tool]
+        MCP[MCP Server] --- query_policy_rules[query_policy_rules/lodging caps]
+        MCP --- fetch_historical_expenses[fetch_historical_expenses/duplicates]
+        MCP --- log_audit_entry[log_audit_entry/persistence]
     end
     
     policy_auditor[Policy Auditor Agent] -.->|Wired with MCP| MCP
     Orch -.->|Delegation Tool| policy_auditor
+
+    classDef startStyle fill:#4CAF50,stroke:#388E3C,stroke-width:2px,color:#fff;
+    classDef securityStyle fill:#F44336,stroke:#D32F2F,stroke-width:2px,color:#fff;
+    classDef agentStyle fill:#2196F3,stroke:#1976D2,stroke-width:2px,color:#fff;
+    classDef routerStyle fill:#9C27B0,stroke:#7B1FA2,stroke-width:2px,color:#fff;
+    classDef hitlStyle fill:#FF9800,stroke:#F57C00,stroke-width:2px,color:#fff;
+    classDef mcpStyle fill:#00BCD4,stroke:#0097A7,stroke-width:2px,color:#fff;
+    classDef finalStyle fill:#607D8B,stroke:#455A64,stroke-width:2px,color:#fff;
+
+    class START startStyle;
+    class Security,SecEvent securityStyle;
+    class Orch,policy_auditor,Drafter agentStyle;
+    class Router routerStyle;
+    class HITL hitlStyle;
+    class MCP,query_policy_rules,fetch_historical_expenses,log_audit_entry mcpStyle;
+    class Final finalStyle;
 ```
 
 ---
