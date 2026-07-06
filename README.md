@@ -1,3 +1,5 @@
+![Cover Banner](assets/cover_page_banner.png)
+
 # Expense Auditor Agent
 
 An automated, secure, and policy-compliant AI assistant to audit employee expense claims using the Google Agent Development Kit (ADK) 2.0.
@@ -125,8 +127,8 @@ Default endpoint is `http://127.0.0.1:8000`.
 ## Assets
 
 This project includes visual design files in the `assets/` directory:
-- **Architecture Diagram**: [assets/architecture_diagram.png](file:///c:/Users/HARSH/Desktop/adk-workspace/expense-auditor/assets/architecture_diagram.png)
-- **Cover Banner**: [assets/cover_page_banner.png](file:///c:/Users/HARSH/Desktop/adk-workspace/expense-auditor/assets/cover_page_banner.png)
+- **Architecture Diagram**: ![Architecture Diagram](assets/architecture_diagram.png)
+- **Cover Banner**: ![Cover Banner](assets/cover_page_banner.png)
 
 ---
 
@@ -144,7 +146,7 @@ This project includes visual design files in the `assets/` directory:
    git add .
    git commit -m "Initial commit: expense-auditor ADK agent"
    git branch -M main
-   git remote add origin https://github.com/<your-username>/expense-auditor.git
+   git remote add origin https://github.com/harsh-guptadev/expense-auditor.git
    git push -u origin main
    ```
 
