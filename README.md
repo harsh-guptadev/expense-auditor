@@ -122,6 +122,12 @@ Default endpoint is `http://127.0.0.1:8000`.
 
 ---
 
+## Demo Script
+
+A conversational presentation script for showing this project is available in [DEMO_SCRIPT.txt](DEMO_SCRIPT.txt).
+
+---
+
 ## Troubleshooting
 
 1. **Error: `no agents found` or `extra arguments` when starting the playground.**
