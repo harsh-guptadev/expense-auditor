@@ -129,6 +129,7 @@ orchestrator = LlmAgent(
 )
 
 # Node 1: Security Scan
+# Security Checkpoint: Inspects input for injection attacks, redacts SSN/Credit Card PII, and filters restricted items.
 @node
 async def security_checkpoint(ctx: Context, node_input: Any) -> Event:
     """Scans the expense claim for PII, prompt injection, and restricted items."""
@@ -203,6 +204,7 @@ async def security_checkpoint(ctx: Context, node_input: Any) -> Event:
     return Event(output=scrubbed_text)
 
 # Node 2: Security Event Handler
+# Security Event Handler: Instantly terminates the workflow and flags security violations.
 @node
 async def security_event_node(ctx: Context) -> Event:
     """Handles security events by terminating the workflow immediately with a rejection."""
@@ -212,6 +214,7 @@ async def security_event_node(ctx: Context) -> Event:
     return Event(output={"status": "SECURITY_REJECTED", "draft": output_message})
 
 # Node 3: Orchestrator Router
+# Orchestrator Router: Determines downstream workflow routing (needs review or auto-approve) based on policy results or threshold.
 @node
 async def orchestrator_router(ctx: Context, node_input: Any) -> Event:
     """Parses orchestrator's output and determines the downstream workflow routing."""
@@ -267,6 +270,7 @@ class HumanReviewInput(BaseModel):
     remarks: Optional[str] = Field(default="", description="Administrator remarks explaining the decision")
 
 # Node 4: Human Review Pause (HITL)
+# Human Review: Suspends the workflow (HITL) for administrator approval when limits/policies require manual audit.
 @node(rerun_on_resume=True)
 async def human_review(ctx: Context) -> Event | RequestInput:
     """Pauses the workflow for manual human verification if policies are violated or thresholds exceeded."""
@@ -291,6 +295,7 @@ async def human_review(ctx: Context) -> Event | RequestInput:
     )
 
 # Node 5: Dynamic Communication Drafter Runner
+# Communication Drafter Runner: Calls the drafter sub-agent to formulate a professional notification email based on decision.
 @node(rerun_on_resume=True)
 async def communication_drafter_node(ctx: Context) -> Event:
     """Calls the specialized communication_drafter sub-agent to write the final message draft."""
@@ -321,6 +326,7 @@ async def communication_drafter_node(ctx: Context) -> Event:
     return Event(output={"status": audit_status, "draft": draft_text})
 
 # Node 6: Final Output Collector
+# Final Output Collector: Gathers workflow metrics and the generated email draft to output the final result.
 @node
 async def final_output(ctx: Context, node_input: Any) -> Event:
     """Terminal node of the workflow. Collects the final output response."""
@@ -353,7 +359,9 @@ workflow = Workflow(
     ],
 )
 
+root_agent = workflow
+
 app = App(
-    root_agent=workflow,
+    root_agent=root_agent,
     name="app",
 )
