@@ -24,6 +24,8 @@ make playground        # Launches interactive web testing UI
 
 ## Solution Architecture
 
+![Architecture Diagram](assets/architecture_diagram.png)
+
 ```mermaid
 graph TD
     START[__START__] --> Security[Security Checkpoint Node]
@@ -144,6 +146,7 @@ Default endpoint is `http://127.0.0.1:8000`.
 
 This project includes visual design files in the `assets/` directory:
 - **Cover Banner**: ![Cover Banner](assets/cover_page_banner.png)
+- **Architecture Diagram**: ![Architecture Diagram](assets/architecture_diagram.png)
 
 ---
 
