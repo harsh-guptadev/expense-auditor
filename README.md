@@ -13,7 +13,7 @@ An automated, secure, and policy-compliant AI assistant to audit employee expens
 ## Quick Start
 
 ```bash
-git clone https://github.com/your-username/expense-auditor.git
+git clone https://github.com/harsh-guptadev/expense-auditor.git
 cd expense-auditor
 cp .env.example .env   # Configure your GOOGLE_API_KEY
 make install           # Sets up python virtualenv and syncs packages
